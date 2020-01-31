@@ -5,6 +5,11 @@ import asyncio
 import threading
 import websockets
 
+import logging
+logger = logging.getLogger('websockets')
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
+
 SOCKETS = set()
 
 def _exit_handler():
@@ -44,9 +49,13 @@ class socket:
     
     async def handler(self, addr):
         uri = "ws://" + addr[0] + ":" + str(addr[1])
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(uri, ping_interval=None) as websocket:
+            #pinger = time.time()
             while True:
                 if self._kill: break
+                #elif pinger >= (t := time.time()) + 10:
+                #    #websocket.ping()
+                #    pinger = t
                 if len(self._to_send) > 0:
                     print(self._to_send[0])
                     await websocket.send(json.dumps(self._to_send[0]))
