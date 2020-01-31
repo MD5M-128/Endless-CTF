@@ -1,8 +1,16 @@
 import time
 import json
+import atexit
 import asyncio
 import threading
 import websockets
+
+SOCKETS = set()
+
+def _exit_handler():
+    for i in SOCKETS: i.__del__()
+
+atexit.register(_exit_handler)
 
 class socket:
     def __init__(self, ws_addr=("localhost", 8765)):
@@ -12,17 +20,20 @@ class socket:
             loop.run_until_complete(self.handler(ws_addr))
             loop.close()
         self._kill = False
-        self._handle_thread = threading.Thread(target=_do_handler, args=[ws_addr])
+        self._handle_thread = threading.Thread(target=_do_handler, args=[ws_addr], daemon=True)
         self._handle_thread.start()
         self.ip = "127.0.1.1"
         self.port = 1
         self._to_send = []
+        SOCKETS.add(self)
     
     def __del__(self):
+        #print("Dead!")
         self._kill = True
     
     def sendto(self, message, addr):
         msg = {
+            "type": "packet",
             "fromIp": self.ip,
             "fromPort": self.port,
             "ip": addr[0],
@@ -30,16 +41,6 @@ class socket:
             "content": message
         }
         self._to_send.append(msg)
-
-    async def _sendto(self, message, addr):
-        msg = {
-            "fromIp": self.ip,
-            "fromPort": self.port,
-            "ip": addr[0],
-            "port": addr[1],
-            "content": message
-        }
-        await self.ws.send(json.dumps(msg))
     
     async def handler(self, addr):
         uri = "ws://" + addr[0] + ":" + str(addr[1])
@@ -48,7 +49,7 @@ class socket:
                 if self._kill: break
                 if len(self._to_send) > 0:
                     print(self._to_send[0])
-                    await websocket.send(self._to_send[0])
+                    await websocket.send(json.dumps(self._to_send[0]))
                     self._to_send.pop(0)
             """
             #<<<<self.ws = await websockets.connect(uri)
