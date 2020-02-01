@@ -37,7 +37,7 @@ wss.on('connection', function connection(ws, req) {
 				"fromPort": req.connection.remotePort,
 				"toPort": msg["port"]
 			};
-			wss.clients.forEach(function each(client) {
+			wss.clients.forEach(function(client) {
 				if (client.readyState === WebSocket.OPEN) {
 					client.send(JSON.stringify(packet));
 				}
@@ -54,18 +54,63 @@ wss.on('connection', function connection(ws, req) {
 				};
 				if (msg.password == dnsCreds[msg.name].password) {
 					allDNS.push(packet);
-					wss.clients.forEach(function each(client) {
+					wss.clients.forEach(function(client) {
 						if (client.readyState === WebSocket.OPEN) {
 							client.send(JSON.stringify(packet));
 						}
 					});
+				} else {
+					ws.send('{"type": "dns_badpassword"}');
 				}
+			} else {
+				ws.send('{"type": "dns_notregistered"}');
+			}
+		} else if (msg.type == "dns_logout") {
+			var entry = null;
+			var entryI = null;
+			for (var i = allDNS.length - 1; i >= 0; i--) {
+				if (allDNS[i].name == msg.name) {
+					entry = allDNS[i].name;
+					entryI = i;
+				}
+			}
+			if (entry) {
+				if (msg.password == dnsCreds[msg.name].password) {
+					allDNS.splice(entryI, 1);
+					var packet = {
+						"type": "dns_logout",
+						"name": entry.name
+					};
+					wss.clients.forEach(function(client) {
+						if (client.readyState === WebSocket.OPEN) {
+							client.send(JSON.stringify(packet));
+						}
+					});
+				} else {
+					ws.send('{"type": "dns_badpassword"}');
+				}
+			} else {
+				ws.send('{"type": "dns_notloggedin"}');
 			}
 		} else if (msg.type == "dns_all") {
 			var packet = {
 				"type": "dns_all",
 				"entries": allDNS
 			};
+			ws.send(JSON.stringify(packet));
+		} else if (msg.type == "dns_lookup") {
+			var entry = null;
+			for (var i = allDNS.length - 1; i >= 0; i--) {
+				if (allDNS[i].name == msg.name) {
+					entry = allDNS[i].name;
+				}
+			}
+			if (entry) {
+				entry.type = "dns_result";
+				ws.send(JSON.stringify(entry));
+			} else {
+				ws.send('{"type": "dns_notfound"}');
+			}
 		}
 	})
 });
