@@ -79,12 +79,15 @@ class socket:
             del self
 
         def on_open(ws):
-            while True:
-                if self._kill: break
-                if len(self._to_send) > 0:
-                    ws.send(json.dumps(self._to_send[0]))
-                    self._to_send.pop(0)
-            ws.close()
+            def run():
+                while True:
+                    if self._kill: break
+                    if len(self._to_send) > 0:
+                        ws.send(json.dumps(self._to_send[0]))
+                        self._to_send.pop(0)
+                ws.close()
+            self._second_thread = threading.Thread(target=run, args=[], daemon=True)
+            self._second_thread.start()
             
 
         #websocket.enableTrace(True)
@@ -123,9 +126,10 @@ class socket:
         dnss = len(self._dns_queue)
         self._to_send.append(msg)
         while True:
-            if self._dns_queue > dnss:
+            if len(self._dns_queue) > dnss:
                 for i in self._dns_queue:
                     if i["type"] == "dns_login" or i["type"] == "dns_notregistered" or i["type"] == "dns_badpassword":
+                        self._dns_queue.remove(i)
                         i.pop("type")
                         return i
     def dns_logout(self, name, password):
@@ -137,9 +141,10 @@ class socket:
         dnss = len(self._dns_queue)
         self._to_send.append(msg)
         while True:
-            if self._dns_queue > dnss:
+            if len(self._dns_queue) > dnss:
                 for i in self._dns_queue:
                     if i["type"] == "dns_logout" or i["type"] == "dns_notloggedin" or i["type"] == "dns_badpassword":
+                        self._dns_queue.remove(i)
                         i.pop("type")
                         return i
     def dns_lookup(self, name):
@@ -150,8 +155,21 @@ class socket:
         dnss = len(self._dns_queue)
         self._to_send.append(msg)
         while True:
-            if self._dns_queue > dnss:
+            if len(self._dns_queue) > dnss:
                 for i in self._dns_queue:
                     if i["type"] == "dns_result" or i["type"] == "dns_notfound":
+                        self._dns_queue.remove(i)
                         i.pop("type")
                         return i
+    def dns_all(self):
+        msg = {
+            "type": "dns_all"
+        }
+        dnss = len(self._dns_queue)
+        self._to_send.append(msg)
+        while True:
+            if len(self._dns_queue) > dnss:
+                for i in self._dns_queue:
+                    if i["type"] == "dns_all":
+                        self._dns_queue.remove(i)
+                        return i["entries"]

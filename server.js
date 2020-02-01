@@ -102,7 +102,7 @@ wss.on('connection', function connection(ws, req) {
 			var entry = null;
 			for (var i = allDNS.length - 1; i >= 0; i--) {
 				if (allDNS[i].name == msg.name) {
-					entry = allDNS[i].name;
+					entry = allDNS[i];
 				}
 			}
 			if (entry) {
