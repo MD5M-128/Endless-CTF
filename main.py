@@ -11,4 +11,8 @@ def home():
 def network():
     return render_template("network.html")
 
+@app.route("/dns/")
+def dns():
+    return render_template("dns.html")
+
 app.run("0.0.0.0", 8080)
