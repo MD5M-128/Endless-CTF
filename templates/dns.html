@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="/static/style/net.css" rel="stylesheet" type="text/css">
+        <script src="/static/scripts/network.js"></script>
+        <title>DNS Table</title>
+    </head>
+    <body>
+        <h1>
+            DNS Table
+        </h1>
+        <table id="dns">
+            <tr>
+                <th>
+                    IP
+                </th>
+                <th>
+                    Server and Domain Name
+                </th>
+                <th>
+                    Owner
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Last Login (Timestamp):
+                </th>
+            </tr>
+        </table>
+        <script>
+            connect();
+            loadDNS();
+        </script>
+    </body>
+</html>
