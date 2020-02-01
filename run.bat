@@ -1,2 +1,2 @@
-start python ws.py
-python main.py
+start python main.py
+node server.js
