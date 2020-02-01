@@ -58,7 +58,7 @@ function connect() {
                 dnsTable.removeChild(nameRow);
             }
         } else if (msg.type == "dns_all" && dnsTable) {
-            msg.entries.forEach(function addToTable(ent) {
+            msg.entries.forEach(function(ent) {
                 var existed = true;
                 var nameRow = document.getElementById(ent.name);
                 if (!nameRow) {
@@ -81,6 +81,9 @@ function connect() {
             });
         }
     };
+    webSocket.onopen = function(event) {
+        loadDNS();
+    }
 }
 
 function loadDNS() {

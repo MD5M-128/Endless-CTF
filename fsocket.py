@@ -53,17 +53,21 @@ class socket:
         self.port = 1
         self._to_send = []
         self._to_recv = []
+        self._dns_queue = []
         self._bound_to = ("0.0.0.0", -1)
         SOCKETS.add(self)
 
         def on_message(ws, message):
             try:
                 msg = json.loads(message)
-                if (msg["ip"] == self._bound_to[0] or self._bound_to[0] == "0.0.0.0") and (msg["port"] == self._bound_to[1] or self._bound_to[1] == -1):
-                    if valid_ip_num(msg["ip"]):
-                        self._to_recv.append()
-                    else:
-                        print("Bound IP invalid!")
+                if msg["type"] == "packet":
+                    if (msg["ip"] == self._bound_to[0] or self._bound_to[0] == "0.0.0.0") and (msg["port"] == self._bound_to[1] or self._bound_to[1] == -1):
+                        if valid_ip_num(msg["ip"]):
+                            self._to_recv.append()
+                        else:
+                            print("Bound IP invalid!")
+                elif msg["type"].startswith("dns_"):
+                    self._dns_queue.append(msg)
             except json.decoder.JSONDecodeError:
                 print("Invalid JSON data sent!")
 
@@ -116,11 +120,38 @@ class socket:
             "name": name,
             "password": password
         }
+        dnss = len(self._dns_queue)
         self._to_send.append(msg)
+        while True:
+            if self._dns_queue > dnss:
+                for i in self._dns_queue:
+                    if i["type"] == "dns_login" or i["type"] == "dns_notregistered" or i["type"] == "dns_badpassword":
+                        i.pop("type")
+                        return i
     def dns_logout(self, name, password):
         msg = {
             "type": "dns_logout",
             "name": name,
             "password": password
         }
+        dnss = len(self._dns_queue)
         self._to_send.append(msg)
+        while True:
+            if self._dns_queue > dnss:
+                for i in self._dns_queue:
+                    if i["type"] == "dns_logout" or i["type"] == "dns_notloggedin" or i["type"] == "dns_badpassword":
+                        i.pop("type")
+                        return i
+    def dns_lookup(self, name):
+        msg = {
+            "type": "dns_lookup",
+            "name": name
+        }
+        dnss = len(self._dns_queue)
+        self._to_send.append(msg)
+        while True:
+            if self._dns_queue > dnss:
+                for i in self._dns_queue:
+                    if i["type"] == "dns_result" or i["type"] == "dns_notfound":
+                        i.pop("type")
+                        return i
