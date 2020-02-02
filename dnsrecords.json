@@ -1,0 +1,42 @@
+{
+    "hello.com": {
+		"desc": "Hello, world!",
+		"owner": {
+			"name": "Me",
+			"email": "me@hello.com"
+		},
+		"password": "$2a$10$kfOsCJcGmOm0IxJcQBBUsOdld8wQ3/4ykAmfpQxPjJMCYrByb3//u"
+    },
+    "carnley.com": {
+        "desc": "Carnley's house domain",
+        "owner": {
+            "name": "Carnley",
+            "email": false
+        },
+        "password": "$2a$10$za/0ruZGI1q7F.Cizv0V9eM9t5Kw4nsE/db.3NI4OScHbwmkdTWmu"
+    },
+    "challen.com": {
+        "desc": "Challen's house domain",
+        "owner": {
+            "name": "Challen",
+            "email": false
+        },
+        "password": "$2a$10$LW1wYsK1zUguNtR1iExGIuNOug6NEaVyZv/IchVsihnduxdLPaCry"
+    },
+    "moyes.com": {
+        "desc": "Moyes' house domain",
+        "owner": {
+            "name": "Moyes",
+            "email": false
+        },
+        "password": "$2a$10$slxXoogHmHRoiV6N2ExYDu2TObTs6LGqOI3BbXxV/mpklRdeGbAPO"
+    },
+    "watkins.com": {
+        "desc": "Watkins' house domain",
+        "owner": {
+            "name": "Watkins",
+            "email": false
+        },
+        "password": "$2a$10$3ZZdVEehog4EiEqYiZ3QRO/eV9WqW50NwledUK1rpjj8EjxQM6qAa"
+    }
+}
