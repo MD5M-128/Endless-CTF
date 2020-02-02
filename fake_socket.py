@@ -114,6 +114,9 @@ class socket:
         }
         self._to_send.append(msg)
     
+    def recv(self):
+        return self._to_recv.pop(0) if self._to_recv else None
+    
     def close(self):
         self._kill = True
 
@@ -131,6 +134,7 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_login" or i["type"] == "dns_notregistered" or i["type"] == "dns_badpassword":
                         self._dns_queue.remove(i)
+                        i["ip"] = num_to_ipv4(i["ip"])
                         return i
     def dns_logout(self, server, domain, password):
         msg = {
@@ -159,6 +163,7 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_result" or i["type"] == "dns_notfound":
                         self._dns_queue.remove(i)
+                        i["ip"] = num_to_ipv4(i["ip"])
                         return i
     def dns_all(self):
         msg = {
@@ -171,4 +176,6 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_all":
                         self._dns_queue.remove(i)
+                        for j in i["entries"]:
+                            j["ip"] = num_to_ipv4(j["ip"])
                         return i["entries"]
