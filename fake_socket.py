@@ -117,10 +117,11 @@ class socket:
     def close(self):
         self._kill = True
 
-    def dns_login(self, name, password):
+    def dns_login(self, server, domain, password):
         msg = {
             "type": "dns_login",
-            "name": name,
+            "server": server,
+            "domain": domain,
             "password": password
         }
         dnss = len(self._dns_queue)
@@ -130,12 +131,12 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_login" or i["type"] == "dns_notregistered" or i["type"] == "dns_badpassword":
                         self._dns_queue.remove(i)
-                        i.pop("type")
                         return i
-    def dns_logout(self, name, password):
+    def dns_logout(self, server, domain, password):
         msg = {
             "type": "dns_logout",
-            "name": name,
+            "server": server,
+            "domain": domain,
             "password": password
         }
         dnss = len(self._dns_queue)
@@ -145,7 +146,6 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_logout" or i["type"] == "dns_notloggedin" or i["type"] == "dns_badpassword":
                         self._dns_queue.remove(i)
-                        i.pop("type")
                         return i
     def dns_lookup(self, name):
         msg = {
@@ -159,7 +159,6 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_result" or i["type"] == "dns_notfound":
                         self._dns_queue.remove(i)
-                        i.pop("type")
                         return i
     def dns_all(self):
         msg = {
