@@ -1,2 +1,2 @@
 start python main.py
-node server.js
+call node server.js
