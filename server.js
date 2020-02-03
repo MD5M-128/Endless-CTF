@@ -31,9 +31,9 @@ wss.on('connection', function connection(ws, req) {
 				"time": Date.now(),
 				"content": msg["content"],
 				"fromIp": ipv4_to_num(req.connection.remoteAddress),
-				"toIp": msg["ip"],
+				"ip": msg["ip"],
 				"fromPort": req.connection.remotePort,
-				"toPort": msg["port"]
+				"port": msg["port"]
 			};
 			wss.clients.forEach(function(client) {
 				if (client.readyState === WebSocket.OPEN) {

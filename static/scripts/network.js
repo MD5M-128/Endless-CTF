@@ -22,13 +22,13 @@ function connect() {
             ipLinkA = document.createElement("a");
             ipLinkB = document.createElement("a");
             ipLinkA.setAttribute("href", "/dns#" + num_to_ipv4(msg.fromIp));
-            ipLinkB.setAttribute("href", "/dns#" + num_to_ipv4(msg.toIp));
+            ipLinkB.setAttribute("href", "/dns#" + num_to_ipv4(msg.ip));
             row.childNodes[0].appendChild(ipLinkA);
             row.childNodes[1].appendChild(ipLinkB);
             row.childNodes[0].firstChild.textContent = num_to_ipv4(msg.fromIp);
-            row.childNodes[1].firstChild.textContent = num_to_ipv4(msg.toIp);
+            row.childNodes[1].firstChild.textContent = num_to_ipv4(msg.ip);
             row.childNodes[2].textContent = msg.fromPort.toString();
-            row.childNodes[3].textContent = msg.toPort.toString();
+            row.childNodes[3].textContent = msg.port.toString();
             row.childNodes[4].textContent = msg.content;
             row.childNodes[5].textContent = msg.time.toString();
             table.appendChild(row);

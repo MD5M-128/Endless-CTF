@@ -54,22 +54,29 @@ class socket:
         self._to_send = []
         self._to_recv = []
         self._dns_queue = []
-        self._bound_to = ("0.0.0.0", -1)
+        self._bound_to = (0, -1)
         SOCKETS.add(self)
 
         def on_message(ws, message):
             try:
                 msg = json.loads(message)
+                #print("Arrived here")
                 if msg["type"] == "packet":
-                    if (msg["ip"] == self._bound_to[0] or self._bound_to[0] == "0.0.0.0") and (msg["port"] == self._bound_to[1] or self._bound_to[1] == -1):
+                    #print("And here")
+                    if (msg["ip"] == self._bound_to[0] or self._bound_to[0] == 0) and (msg["port"] == self._bound_to[1] or self._bound_to[1] == -1):
+                        #print("Even here!")
                         if valid_ip_num(msg["ip"]):
-                            self._to_recv.append()
+                            #print("We'll carry on, we'll carry on...")
+                            self._to_recv.append(msg)                       # Can we just ask how I forgot to put an argument here?
                         else:
                             print("Bound IP invalid!")
                 elif msg["type"].startswith("dns_"):
                     self._dns_queue.append(msg)
             except json.decoder.JSONDecodeError:
                 print("Invalid JSON data sent!")
+            except Exception as e:
+                self._last_error = e
+                raise e                 # Doesn't usually work
 
         def on_error(ws, error):
             raise error
@@ -99,6 +106,9 @@ class socket:
         self._handle_thread = threading.Thread(target=ws.run_forever, args=[], daemon=True)
         self._handle_thread.start()
     
+    #def raiser(self):
+    #    raise self._last_error
+
     def __del__(self):
         #print("Dead!")
         self._kill = True
@@ -134,7 +144,8 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_login" or i["type"] == "dns_notregistered" or i["type"] == "dns_badpassword":
                         self._dns_queue.remove(i)
-                        i["ip"] = num_to_ipv4(i["ip"])
+                        if i["type"] == "dns_login":
+                            i["ip"] = num_to_ipv4(i["ip"])
                         return i
     def dns_logout(self, server, domain, password):
         msg = {
@@ -163,7 +174,8 @@ class socket:
                 for i in self._dns_queue:
                     if i["type"] == "dns_result" or i["type"] == "dns_notfound":
                         self._dns_queue.remove(i)
-                        i["ip"] = num_to_ipv4(i["ip"])
+                        if i["type"] == "dns_result":
+                            i["ip"] = num_to_ipv4(i["ip"])
                         return i
     def dns_all(self):
         msg = {
@@ -179,3 +191,6 @@ class socket:
                         for j in i["entries"]:
                             j["ip"] = num_to_ipv4(j["ip"])
                         return i["entries"]
+    
+    def wait_for_send(self):
+        while self._to_send: pass
