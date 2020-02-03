@@ -18,7 +18,7 @@ if s.dns_lookup(serve + "." + domain)["type"] == "dns_notfound":
 
 while True:
     data = s.recv()
-    if data: print(data)
+    if data: print(data["content"])
 
 # And it's as easy as that.
 # No. It really isn't

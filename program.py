@@ -26,6 +26,7 @@ if endpoint["type"] != "dns_result":
 ip = endpoint["ip"]
 print("Sending...")
 s.sendto(payload, (ip, 65535))
+s.wait_for_send()
 
 # And it's as easy as that.
 # No. It really isn't
