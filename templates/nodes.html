@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="/static/scripts/node-lib.js" type="text/javascript"></script>
+        <script src="/static/scripts/network.js"></script>
+        <style type="text/css">
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        @keyframes expandout {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+        .node > .outer1 {
+            animation: expandout 5s ease infinite;
+        }
+        .node > .outer2 {
+            animation: expandout 5s 2.5s ease infinite;
+        }
+
+        .human:not(:active) > .outer {
+            animation: expandout 2.5s ease;
+            animation-iteration-count: 1;
+        }
+        </style>
+    </head>
+    <body>
+        <svg version="1.1" id="canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" xml:space="preserve"></svg>
+        <script>
+            // New code:
+            connect();
+
+            // Old code:
+            n1 = new NetNode(256, 256, 96, "forestgreen");
+            n2 = new NetNode(512, 384, 64, "skyblue");
+            n3 = new NetNode(1024, 128, 128, "gold");
+            l1 = new NetLinker(n2, n3);
+            l2 = new NetLinker(n1, n3);
+            n4 = new NetNode(512-128, 1024, 196, "grey");
+            l3 = new NetLinker(n4, n3);
+            l4 = new NetLinker(n4, n2);
+            l5 = new NetLinker(n1, n4);
+
+            // Coding:
+            newthing = new NetNode(1536, 512, 96, "darkred");
+            newlink = new NetLinker(n4, newthing);
+            newlink2 = new NetLinker(n2, newthing);
+
+            n2.onMessage = function(link, message) {
+                for (let i=0; i < this._links.length; i++) {
+                    if (this._links[i] != link) {
+                        this.sendMessage(this._links[i], message);
+                        console.log("N2: Relayed message '" + message.toString() + "' to _links[" + i.toString() + "].");
+                    }
+                }
+                link.thickness++;
+            }
+            newthing.onMessage = function(link, message) {
+                console.log("I'm going fine.");
+                this.sendMessage(newlink, "I'm going fine.");
+            }
+            n4.sendMessage(l4, "How are you going?");
+
+            var counter = -10000;
+            n1.onMessage = function(link, message) {
+                if (link == l2) {
+                    this.sendMessage(link, "RX!");
+                }
+            }
+            n3.onMessage = async function(link, message) {
+                if (link == l2 && counter < 100) {
+                    await delay(100);
+                    this.sendMessage(link, "TX!");
+                    counter++;
+                }
+                this.sendMessage(l1, "Hi N2!");
+            }
+        </script>
+    </body>
+</html>
