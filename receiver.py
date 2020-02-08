@@ -1,6 +1,7 @@
 import fake_socket as socket
-from subprocess import call
 from sys import argv
+
+import final
 
 password = argv[1]
 domain = "watkins.com"
@@ -18,7 +19,9 @@ if s.dns_lookup(serve + "." + domain)["type"] == "dns_notfound":
 
 while True:
     data = s.recv()
-    if data: print(data["content"])
+    if data:
+        print(data["content"])
+        print(final.submit(domain, password, data["content"]))
 
 # And it's as easy as that.
 # No. It really isn't
