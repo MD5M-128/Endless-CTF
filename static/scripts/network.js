@@ -1,4 +1,5 @@
 var webSocket;
+var selected = "tr:not(tr)";
 
 // Source: https://gist.github.com/jppommet/5708697
 function num_to_ipv4(ipInt) {
@@ -6,6 +7,30 @@ function num_to_ipv4(ipInt) {
 }
 function ipv4_to_num(ip) {
     return ip.split('.').reduce(function(ipInt, octet) { return (ipInt << 8) + parseInt(octet, 10)}, 0) >>> 0;
+}
+
+function selectIP(ip) {
+    ip = ip.replace(/\./g, "-");
+    rows = document.querySelectorAll(selected);
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = 'table-row';
+    }
+    selected = 'tr:not(.i' + ip + "):not(.top)";
+    rows = document.querySelectorAll(selected);
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = 'none';
+    }
+}
+function select(query) {
+    rows = document.querySelectorAll(selected);
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = 'table-row';
+    }
+    selected = query;
+    rows = document.querySelectorAll(selected);
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = 'none';
+    }
 }
 
 function connect() {
@@ -31,7 +56,9 @@ function connect() {
             row.childNodes[3].textContent = msg.port.toString();
             row.childNodes[4].textContent = msg.content;
             row.childNodes[5].textContent = msg.time.toString();
+            row.classList.add("i" + num_to_ipv4(msg.fromIp).replace(/\./g, "-"), "i" + num_to_ipv4(msg.ip).replace(/\./g, "-"));
             table.appendChild(row);
+            select(selected);
         } else if (msg.type == "dns_login" && dnsTable) {
             var existed = true;
             var nameRow = document.getElementById(msg.name);
