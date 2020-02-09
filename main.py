@@ -2,7 +2,7 @@ from Crypto.Random import random
 from hashlib import sha512
 from flask import *
 import threading
-import asyncio #
+import asyncio
 import bcrypt
 import json
 import time
@@ -17,10 +17,13 @@ except:
         COMP_DATA = {k: {"points": 0} for k in DNS_CRED.keys()}
         json.dump(COMP_DATA, f)
 
-FLAGS = {}
+class ThreadSyncer(threading.local):
+    def __init__(self):
+        self.comp_hash = hash(json.dumps(COMP_DATA))
 
+FLAGS = {}
 KILLPROG = False
-UPDATE_SCORES = False
+THREAD_LOCAL = ThreadSyncer()
 
 def steve(): # Jobs
     last_save = time.time()
@@ -37,10 +40,9 @@ def steve(): # Jobs
             break
 
 def scoreboard_eventsource():
-    global UPDATE_SCORES
     while True:
-        if UPDATE_SCORES:
-            UPDATE_SCORES = False
+        if THREAD_LOCAL.comp_hash != (h := hash(json.dumps(COMP_DATA))):
+            THREAD_LOCAL.comp_hash = h
             send_data = [{"name": entry, "points": COMP_DATA[entry]["points"]} for entry in COMP_DATA]
             yield "data: " + json.dumps(send_data) + "\n\n"
 
@@ -85,7 +87,6 @@ def api_loghashrequest():
 
 @app.route("/api/submithash", methods=["POST"])
 def api_submithash():
-    global UPDATE_SCORES
     h = request.form["hash"]
     name = request.form["name"]
     password = request.form["password"]
@@ -94,11 +95,9 @@ def api_submithash():
             if h in FLAGS:
                 if FLAGS[h]["name"] != name:
                     COMP_DATA[name]["points"] += 50
-                    UPDATE_SCORES = True
                     return jsonify({"type": "points", "count": 50})
                 else:
                     COMP_DATA[name]["points"] += 10
-                    UPDATE_SCORES = True
                     return jsonify({"type": "points", "count": 10})
             else:
                 print(FLAGS, h)
