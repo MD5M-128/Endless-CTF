@@ -2,17 +2,23 @@ from Crypto.Random import random
 from hashlib import sha512
 from flask import *
 import threading
+import asyncio #
 import bcrypt
 import json
 import time
 
 app = Flask(__name__)
 
-with open("comprecords.json", "r") as f: COMP_DATA = json.load(f)
 with open("dnsrecords.json", "r") as f: DNS_CRED = json.load(f)
+try:
+    with open("comprecords.json", "r") as f: COMP_DATA = json.load(f)
+except:
+    with open("comprecords.json", "w+") as f:
+        json.dump({k: {"points": 0} for k in DNS_CRED.keys()}, f)
 
 FLAGS = {}
 KILLPROG = False
+UPDATE_SCORES = False
 
 def steve(): # Jobs
     last_save = time.time()
@@ -28,6 +34,14 @@ def steve(): # Jobs
         if KILLPROG:
             break
 
+def scoreboard_eventsource():
+    global UPDATE_SCORES
+    while True:
+        if UPDATE_SCORES:
+            UPDATE_SCORES = False
+            send_data = [{"name": entry, "points": COMP_DATA[entry]["points"]} for entry in COMP_DATA]
+            yield "data: " + json.dumps(send_data) + "\n\n"
+
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -39,6 +53,10 @@ def network():
 @app.route("/dns/")
 def dns():
     return render_template("dns.html")
+
+@app.route("/scoreboard/")
+def scoreboard():
+    return render_template("scoreboard.html")
 
 @app.route("/api/loghashrequest", methods=["POST"])
 def api_loghashrequest():
@@ -66,6 +84,7 @@ def api_loghashrequest():
 
 @app.route("/api/submithash", methods=["POST"])
 def api_submithash():
+    global UPDATE_SCORES
     h = request.form["hash"]
     name = request.form["name"]
     password = request.form["password"]
@@ -74,9 +93,11 @@ def api_submithash():
             if h in FLAGS:
                 if FLAGS[h]["name"] != name:
                     COMP_DATA[name]["points"] += 50
+                    UPDATE_SCORES = True
                     return jsonify({"type": "points", "count": 50})
                 else:
                     COMP_DATA[name]["points"] += 10
+                    UPDATE_SCORES = True
                     return jsonify({"type": "points", "count": 10})
             else:
                 print(FLAGS, h)
@@ -86,6 +107,10 @@ def api_submithash():
     else:
         return jsonify({"type": "gen_dnsnotregistered"})
 
+@app.route("/streams/scoreboard", methods=["GET", "POST"])
+def streams_scoreboard():
+    return Response(scoreboard_eventsource(), mimetype="text/event-stream")
+
 jobs = threading.Thread(target=steve, daemon=True)
 jobs.start()
-app.run("0.0.0.0", 8080)
+app.run("0.0.0.0", 8080, threaded=True)

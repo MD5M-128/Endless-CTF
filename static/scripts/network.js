@@ -116,3 +116,29 @@ function connect() {
 function loadDNS() {
     webSocket.send('{"type": "dns_all"}');
 }
+
+function scoreboard() {
+    var events = new EventSource("/streams/scoreboard");
+    var table = document.getElementById("scores");
+    events.onmessage = function(e) {
+        console.log("Hello?");
+        data = JSON.parse(e.data);
+        data.forEach(function(ent) {
+            var existed = true;
+            var nameRow = document.getElementById(ent.name);
+            if (!nameRow) {
+                nameRow = document.createElement("tr");
+                nameRow.id = ent.name;
+                existed = false;
+                for (var i = 0; i < 2; i++) {
+                    nameRow.appendChild(document.createElement("td"));
+                }
+            }
+            nameRow.childNodes[0].textContent = ent.name;
+            nameRow.childNodes[1].textContent = ent.points.toString();
+            if (!existed) {
+                table.appendChild(nameRow);
+            }
+        });
+    };
+}
