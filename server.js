@@ -17,6 +17,9 @@ function num_to_ipv4(ipInt) {
     return ( (ipInt >>> 24) + '.' + (ipInt >> 16 & 255) + '.' + (ipInt >> 8 & 255) + '.' + (ipInt & 255) );
 }
 function ipv4_to_num(ip) {
+	if (ip == "::1") {
+		ip = "127.0.0.1";
+	}
     return ip.split('.').reduce(function(ipInt, octet) { return (ipInt << 8) + parseInt(octet, 10)}, 0) >>> 0;
 }
 
@@ -52,6 +55,7 @@ wss.on('connection', function connection(ws, req) {
 					"desc": dnsCreds[msg.domain].desc,
 					"owner": dnsCreds[msg.domain].owner
 				};
+				console.log(req.connection.remoteAddress);
 				if (bcrypt.compareSync(msg.password, dnsCreds[msg.domain].password)) {
 					allDNS.push(packet);
 					wss.clients.forEach(function(client) {
