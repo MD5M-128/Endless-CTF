@@ -14,9 +14,11 @@ try:
     with open("comprecords.json", "r") as f: COMP_DATA = json.load(f)
 except:
     with open("comprecords.json", "w+") as f:
-        json.dump({k: {"points": 0} for k in DNS_CRED.keys()}, f)
+        COMP_DATA = {k: {"points": 0} for k in DNS_CRED.keys()}
+        json.dump(COMP_DATA, f)
 
 FLAGS = {}
+
 KILLPROG = False
 UPDATE_SCORES = False
 
@@ -69,7 +71,6 @@ def api_loghashrequest():
                 "type": "gen_success",
                 "rand": num
             }
-            # FIX UP
             h = sha512(name.encode("ASCII") + num.to_bytes(8, "little") + b"DUCKS").hexdigest()
             FLAGS[h] = {
                 "name": name,
