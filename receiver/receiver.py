@@ -1,7 +1,7 @@
 import fake_socket as socket
 from sys import argv
 
-import final
+import submitter
 
 password = argv[1]
 domain = "watkins.com"
@@ -21,7 +21,7 @@ while True:
     data = s.recv()
     if data:
         print(data["content"])
-        print(final.submit(domain, password, data["content"]))
+        print(submitter.submit(domain, password, data["content"]))
 
 # And it's as easy as that.
 # No. It really isn't
