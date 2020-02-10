@@ -99,8 +99,8 @@ def api_submithash():
                 else:
                     COMP_DATA[name]["points"] += 10
                     return jsonify({"type": "points", "count": 10})
+                FLAGS.pop(h)
             else:
-                print(FLAGS, h)
                 return jsonify({"type": "flag_invalid"})
         else:
             return jsonify({"type": "gen_badpassword"})
