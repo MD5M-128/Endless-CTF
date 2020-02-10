@@ -1,4 +1,4 @@
 endless.code-workspace
-__pycache__/**
+**/__pycache__/**
 test.sh
 comprecords.json
