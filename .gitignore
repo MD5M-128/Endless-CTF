@@ -3,3 +3,5 @@ endless.code-workspace
 test.sh
 comprecords.json
 .vscode/**
+node_modules/**
+package-lock.json
