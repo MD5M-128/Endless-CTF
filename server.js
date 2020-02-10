@@ -33,7 +33,7 @@ wss.on('connection', function connection(ws, req) {
 				"type": "packet",
 				"time": Date.now(),
 				"content": msg["content"],
-				"fromIp": ipv4_to_num(req.connection.remoteAddress),
+				"fromIp": msg["fromIp"] || ipv4_to_num(req.connection.remoteAddress),
 				"ip": msg["ip"],
 				"fromPort": req.connection.remotePort,
 				"port": msg["port"]
@@ -48,7 +48,7 @@ wss.on('connection', function connection(ws, req) {
 				var packet = {
 					"type": "dns_login",
 					"time": Date.now(),
-					"ip": ipv4_to_num(req.connection.remoteAddress),
+					"ip": msg["ip"] || ipv4_to_num(req.connection.remoteAddress),
 					"server": msg.server,
 					"domain": msg.domain,
 					"name": msg.server + "." + msg.domain,

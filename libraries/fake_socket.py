@@ -1,3 +1,4 @@
+import sys
 import time
 import json
 import atexit
@@ -43,18 +44,20 @@ def valid_ip_num(num):
     except InvalidIPError:
         return False
 
+IP = ipv4_to_num(sys.argv[3])
+
 class InvalidIPError(Exception):
     pass
 
 class socket:
     def __init__(self, ws_addr=("localhost", 8765)):
         self._kill = False
-        self.ip = ipv4_to_num("127.0.1.1")
+        self.ip = IP
         self.port = 1
         self._to_send = []
         self._to_recv = []
         self._dns_queue = []
-        self._bound_to = (0, -1)
+        self._bound_to = (self.ip, -1)
         SOCKETS.add(self)
 
         def on_message(ws, message):
@@ -135,7 +138,8 @@ class socket:
             "type": "dns_login",
             "server": server,
             "domain": domain,
-            "password": password
+            "password": password,
+            "ip": self.ip
         }
         dnss = len(self._dns_queue)
         self._to_send.append(msg)

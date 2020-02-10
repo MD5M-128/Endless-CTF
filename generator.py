@@ -13,8 +13,13 @@ house = (house.lower() + ".com").encode("ASCII")
 while True:
     json = post(SERVER_URL + "/api/loghashrequest", data={"name": house, "password": password}).json()
     if json["type"] == "gen_success":
+        ip = "127.0.0.1"
+        if house == "carnley.com": ip = "10.0.0.1"
+        elif house == "challen.com": ip = "10.1.0.1"
+        elif house == "moyes.com": ip = "10.2.0.1"
+        elif house == "watkins.com": ip = "10.3.0.1"
         h = sha512(house + json["rand"].to_bytes(8, "little") + b"DUCKS").hexdigest()
-        call(["python", "program.py", password, h])
+        call(["python", "program.py", password, h, ])
     else:
         if json["type"] == "gen_badpassword":
             print("Incorrect house password provided!")
