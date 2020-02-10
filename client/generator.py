@@ -19,7 +19,8 @@ while True:
         elif house == "moyes.com": ip = "10.2.0.1"
         elif house == "watkins.com": ip = "10.3.0.1"
         h = sha512(house + json["rand"].to_bytes(8, "little") + b"DUCKS").hexdigest()
-        call(["python", "program.py", password, h, ])
+        #call(["python", "program.py", password, h, ip])
+        call(["python3.8", "program.py", password, h, ip])
     else:
         if json["type"] == "gen_badpassword":
             print("Incorrect house password provided!")
