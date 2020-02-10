@@ -3,8 +3,8 @@ from sys import argv
 
 import submitter
 
-password = argv[1]
-domain = "watkins.com"
+password = argv[2]
+domain = argv[1]
 serve = "receiver"
 
 s = socket.socket()

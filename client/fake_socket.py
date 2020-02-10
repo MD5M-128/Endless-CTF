@@ -44,7 +44,17 @@ def valid_ip_num(num):
     except InvalidIPError:
         return False
 
-IP = ipv4_to_num(sys.argv[3])
+
+if len(sys.argv) > 3:
+    IP = sys.argv[3]
+else:
+    house = sys.argv[1]
+    if house == "carnley.com": IP = "10.0.0.7"
+    elif house == "challen.com": IP = "10.1.0.7"
+    elif house == "moyes.com": IP = "10.2.0.7"
+    elif house == "watkins.com": IP = "10.3.0.7"
+#IP = ipv4_to_num(IP)
+
 
 class InvalidIPError(Exception):
     pass
@@ -57,7 +67,7 @@ class socket:
         self._to_send = []
         self._to_recv = []
         self._dns_queue = []
-        self._bound_to = (self.ip, -1)
+        self._bound_to = (ipv4_to_num(self.ip), -1)
         SOCKETS.add(self)
 
         def on_message(ws, message):
@@ -119,7 +129,7 @@ class socket:
     def sendto(self, message, addr):
         msg = {
             "type": "packet",
-            "fromIp": self.ip,
+            "fromIp": ipv4_to_num(self.ip),
             "fromPort": self.port,
             "ip": ipv4_to_num(addr[0]),
             "port": addr[1],
@@ -139,7 +149,7 @@ class socket:
             "server": server,
             "domain": domain,
             "password": password,
-            "ip": self.ip
+            "ip": ipv4_to_num(self.ip)
         }
         dnss = len(self._dns_queue)
         self._to_send.append(msg)
