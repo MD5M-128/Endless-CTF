@@ -2,3 +2,4 @@ endless.code-workspace
 **/__pycache__/**
 test.sh
 comprecords.json
+.vscode/**
